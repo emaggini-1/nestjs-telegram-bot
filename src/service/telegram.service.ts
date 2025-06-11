@@ -1,4 +1,5 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as TelegramBot from 'node-telegram-bot-api';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -6,20 +7,18 @@ import * as crypto from 'crypto';
 import { Ollama } from 'ollama';
 
 // Encryption configuration
-const ENCRYPTION_KEY =
-  process.env.ENCRYPTION_KEY || 'default-encryption-key-32-char-long!';
 const IV_LENGTH = 16; // For AES, this is always 16
 const KEY_LENGTH = 32; // 256 bits for AES-256
 
 // Generate a secure key from the passphrase
-function getKey(): Buffer {
-  return crypto.scryptSync(ENCRYPTION_KEY, 'salt', KEY_LENGTH);
+function getKey(encryptionKey: string): Buffer {
+  return crypto.scryptSync(encryptionKey, 'salt', KEY_LENGTH);
 }
 
 // Encryption/Decryption utilities
-function encrypt(text: string): string {
+function encrypt(text: string, encryptionKey: string): string {
   const iv = crypto.randomBytes(IV_LENGTH);
-  const key = getKey();
+  const key = getKey(encryptionKey);
 
   const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
   let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -27,7 +26,7 @@ function encrypt(text: string): string {
   return `${iv.toString('hex')}:${encrypted}`;
 }
 
-function decrypt(text: string): string {
+function decrypt(text: string, encryptionKey: string): string {
   const [ivString, encryptedText] = text.split(':');
   if (!ivString || !encryptedText || ivString.length !== IV_LENGTH * 2) {
     throw new Error('Invalid encrypted text format');
@@ -35,7 +34,7 @@ function decrypt(text: string): string {
 
   const iv = Buffer.from(ivString, 'hex');
   const encrypted = Buffer.from(encryptedText, 'hex');
-  const key = getKey();
+  const key = getKey(encryptionKey);
 
   const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
   let decrypted = decipher.update(encrypted);
@@ -48,19 +47,24 @@ export class TelegramService implements OnModuleInit {
   private readonly bot: TelegramBot;
   private readonly ollama: Ollama;
   private readonly logger = new Logger(TelegramService.name);
+  private readonly encryptionKey: string;
 
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
     // Initialize the bot with the token from environment variable
-    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const botToken = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
     if (!botToken) {
       throw new Error('TELEGRAM_BOT_TOKEN environment variable is not set');
     }
     this.bot = new TelegramBot(botToken, { polling: true });
 
+    this.encryptionKey =
+      this.configService.get<string>('ENCRYPTION_KEY') ||
+      'default-encryption-key-32-char-long!';
+
     // Initialize Ollama
     this.ollama = new Ollama({ host: 'http://localhost:11434' });
     this.logger.log('Telegram bot service initialized');
-    this.logger.log('Encryption key:', ENCRYPTION_KEY);
+    this.logger.log('Encryption key:', this.encryptionKey);
   }
 
   onModuleInit() {
@@ -72,7 +76,7 @@ export class TelegramService implements OnModuleInit {
   private async readEncryptedFile<T>(filePath: string): Promise<T | null> {
     try {
       const encryptedContent = await fs.readFile(filePath, 'utf-8');
-      const decryptedContent = decrypt(encryptedContent);
+      const decryptedContent = decrypt(encryptedContent, this.encryptionKey);
       return JSON.parse(decryptedContent) as T;
     } catch (error) {
       if (
@@ -92,7 +96,7 @@ export class TelegramService implements OnModuleInit {
   ): Promise<void> {
     try {
       const jsonContent = JSON.stringify(data, null, 2);
-      const encryptedContent = encrypt(jsonContent);
+      const encryptedContent = encrypt(jsonContent, this.encryptionKey);
       await fs.writeFile(filePath, encryptedContent, 'utf-8');
     } catch (error) {
       this.logger.error('Error writing encrypted file:', error);
