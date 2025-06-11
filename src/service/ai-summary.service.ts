@@ -21,7 +21,7 @@ export class AiSummaryService {
       const prompt = `You are an expert psychologist. Analyze the following log and provide a psychological summary.\nFocus on emotional patterns, potential stressors, and overall mental well-being. Be concise but insightful.\n\nLog:\n${logContent}\n\nAnalysis:`;
 
       const response = await this.ollama.generate({
-        model: 'llama3.3',
+        model: 'llama3.2',
         prompt,
         format: 'json',
         stream: false,

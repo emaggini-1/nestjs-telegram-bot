@@ -4,7 +4,6 @@ import * as TelegramBot from 'node-telegram-bot-api';
 import { MessageLogService } from './message-log.service';
 import { AiSummaryService } from './ai-summary.service';
 
-
 @Injectable()
 export class TelegramService implements OnModuleInit {
   private readonly bot: TelegramBot;
@@ -31,8 +30,6 @@ export class TelegramService implements OnModuleInit {
     this.logger.log('Telegram bot message handler set up');
   }
 
-
-
   async summarizeCaptainLog(chatId: number): Promise<void> {
     try {
       await this.bot.sendChatAction(chatId, 'typing');
@@ -54,9 +51,8 @@ export class TelegramService implements OnModuleInit {
 
       try {
         // Generate the psychological summary
-        const summary = await this.aiSummaryService.generatePsychologicalSummary(
-          logContent,
-        );
+        const summary =
+          await this.aiSummaryService.generatePsychologicalSummary(logContent);
 
         // Edit the original message with the summary
         await this.bot.editMessageText(
