@@ -36,7 +36,7 @@ $ npm install
 This project includes a Telegram bot service that can echo messages back to users. To use this feature, you need to:
 
 1. Create a Telegram bot using [BotFather](https://t.me/botfather) and obtain your bot token
-2. Set the token as an environment variable:
+2. Set the token as an environment variable named `TELEGRAM_BOT_TOKEN`:
 
 ```bash
 # For Linux/macOS
