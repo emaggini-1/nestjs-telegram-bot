@@ -51,9 +51,9 @@ export class TelegramService implements OnModuleInit {
 
   constructor() {
     // Initialize the bot with the token from environment variable
-    const botToken = process.env.BOT_KEY;
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
     if (!botToken) {
-      throw new Error('BOT_KEY environment variable is not set');
+      throw new Error('TELEGRAM_BOT_TOKEN environment variable is not set');
     }
     this.bot = new TelegramBot(botToken, { polling: true });
 
