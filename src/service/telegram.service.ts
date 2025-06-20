@@ -45,7 +45,7 @@ export class TelegramService implements OnModuleInit {
       // Send initial message
       const processingMessage = await this.bot.sendMessage(
         chatId,
-        '🔍 Analyzing the log with psychological expertise...',
+        '🔍 Holodeck Dan is on the case, Captain!',
         { parse_mode: 'Markdown' },
       );
 
@@ -105,7 +105,7 @@ export class TelegramService implements OnModuleInit {
       await this.messageLogService.appendMessage(msg);
 
       // Echo the message back
-      await this.bot.sendMessage(chatId, `Echo: ${messageText}`);
+      await this.bot.sendMessage(chatId, `Message received, captain!`);
     });
   }
 }

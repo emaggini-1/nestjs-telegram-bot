@@ -17,14 +17,21 @@ export class MessageLogService {
       const decryptedContent = this.cryptoService.decrypt(encryptedContent);
       return JSON.parse(decryptedContent) as T;
     } catch (error) {
-      if (error instanceof Error && 'code' in error && (error as any).code !== 'ENOENT') {
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        error.code !== 'ENOENT'
+      ) {
         this.logger.error('Error reading encrypted file:', error);
       }
       return null;
     }
   }
 
-  private async writeEncryptedFile(filePath: string, data: unknown): Promise<void> {
+  private async writeEncryptedFile(
+    filePath: string,
+    data: unknown,
+  ): Promise<void> {
     try {
       const jsonContent = JSON.stringify(data, null, 2);
       const encryptedContent = this.cryptoService.encrypt(jsonContent);
@@ -36,7 +43,9 @@ export class MessageLogService {
   }
 
   async readMessages(): Promise<Array<{ date: Date; message: string }>> {
-    const messages = await this.readEncryptedFile<Array<{ date: string; message: string }>>(this.messagesPath);
+    const messages = await this.readEncryptedFile<
+      Array<{ date: string; message: string }>
+    >(this.messagesPath);
     return (
       messages?.map((msg) => ({
         date: new Date(msg.date),

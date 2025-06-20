@@ -18,16 +18,16 @@ export class AiSummaryService {
 
   async generatePsychologicalSummary(logContent: string): Promise<string> {
     try {
-      const prompt = `You are an expert psychologist. Analyze the following log and provide a psychological summary.\nFocus on emotional patterns, potential stressors, and overall mental well-being. Be concise but insightful.\n\nLog:\n${logContent}\n\nAnalysis:`;
+      const prompt = `Ensure response in format of {response:response} only. You are an expert psychologist. Analyze the following log and provide a psychological summary.\nFocus on emotional patterns, potential stressors, and overall mental well-being. Be concise but insightful.\n\nLog:\n${logContent}\n\nAnalysis:`;
 
       const response = await this.ollama.generate({
-        model: 'llama3.2',
+        model: 'gemma3:12b',
         prompt,
         format: 'json',
         stream: false,
       });
 
-      this.logger.log('Psychological analysis response:', response);
+      this.logger.log('Psychological analysis response:', response['response']);
 
       return response.response.trim();
     } catch (error) {
