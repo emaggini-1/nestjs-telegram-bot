@@ -8,9 +8,9 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "source ~/.bash_profile && nest start",
-    "start:dev": "source ~/.bash_profile && nest start --watch",
-    "start:debug": "source ~/.bash_profile && nest start --debug --watch",
+    "start": "source ~/.zprofile && nest start",
+    "start:dev": "source ~/.zprofile && nest start --watch",
+    "start:debug": "source ~/.zprofile && nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
