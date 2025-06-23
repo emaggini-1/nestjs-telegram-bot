@@ -27,8 +27,6 @@ export class AiSummaryService {
         stream: false,
       });
 
-      this.logger.log('Psychological analysis response:', response['response']);
-
       return response.response.trim();
     } catch (error) {
       this.logger.error('Error generating psychological summary:', error);

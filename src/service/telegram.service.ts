@@ -88,14 +88,8 @@ export class TelegramService implements OnModuleInit {
   private setupMessageHandler() {
     // Listen for any message
     this.bot.on('message', async (msg) => {
-      this.logger.log('Received a message', msg);
       const chatId = msg.chat.id;
       const messageText = msg.text || 'No text content';
-
-      this.logger.log(
-        `Received message: ${messageText} from chat ID: ${chatId}`,
-      );
-
       if (msg.text?.toLowerCase().includes(`summarize captain's log`)) {
         await this.summarizeCaptainLog(chatId);
         return;

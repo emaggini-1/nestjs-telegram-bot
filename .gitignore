@@ -14,5 +14,7 @@
 /.idea
 .project
 .classpath
+messages.json
+
 
 
