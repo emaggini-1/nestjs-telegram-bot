@@ -52,11 +52,11 @@ export class TelegramService implements OnModuleInit {
       try {
         // Generate the psychological summary
         const summary =
-          await this.aiSummaryService.generatePsychologicalSummary(logContent);
+          JSON.parse(await this.aiSummaryService.generatePsychologicalSummary(logContent));
 
         // Edit the original message with the summary
         await this.bot.editMessageText(
-          `🧠 *Psychological Analysis*\n\n${summary}`,
+          `🧠 *Psychological Analysis*\n\n${summary.response}`,
           {
             chat_id: chatId,
             message_id: processingMessage.message_id,
